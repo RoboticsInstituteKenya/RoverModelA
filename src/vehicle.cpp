@@ -19,18 +19,18 @@ void Motors::run() {
 }
 
 void Motors::turnRight(int speed) {
-  setSpeed(LEFT_MOTOR, speed);
-  setSpeed(RIGHT_MOTOR, 0);
-  setDirection(LEFT_MOTOR, true);
-  setDirection(RIGHT_MOTOR, false);
-  run();
-}
-
-void Motors::turnLeft(int speed) {
   setSpeed(LEFT_MOTOR, 0);
   setSpeed(RIGHT_MOTOR, speed);
   setDirection(LEFT_MOTOR, false);
   setDirection(RIGHT_MOTOR, true);
+  run();
+}
+
+void Motors::turnLeft(int speed) {
+  setSpeed(LEFT_MOTOR, speed);
+  setSpeed(RIGHT_MOTOR, 0);
+  setDirection(LEFT_MOTOR, true);
+  setDirection(RIGHT_MOTOR, false);
   run();
 }
 
