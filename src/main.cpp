@@ -10,6 +10,7 @@ Sonar sonar(ROVER_SONAR_TRIG_PIN, ROVER_SONAR_ECHO_PIN);
 void setup() {
   Serial.begin(115200);
   Serial.println("Rover Model A - Starting...");
+
   pinMode(LED_BUILTIN, OUTPUT); // Ensure LED_BUILTIN is set as an output
   randomSeed(analogRead(A0));   // Seed the random number generator
 }
@@ -34,6 +35,7 @@ void loop() {
     }
 
     motors.stop(); // Stop turning once clear
+    delay(1000);
   } else {
     motors.forward(ROVER_MOVING_SPEED); // Move forward if no obstacle
   }
