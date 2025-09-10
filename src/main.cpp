@@ -1,57 +1,39 @@
+#include "Vehicle.hpp"
 #include <Arduino.h>
 
-#include "config.hpp"
-#include "vehicle.hpp"
-
-Motors motors(ROVER_ENA_PIN, ROVER_IN1_PIN, ROVER_IN2_PIN, ROVER_ENB_PIN,
-              ROVER_IN3_PIN, ROVER_IN4_PIN);
-Sonar sonar(ROVER_SONAR_TRIG_PIN, ROVER_SONAR_ECHO_PIN);
-
-int distance;
-long duration;
-bool isMoving = false;
-unsigned long lastStartMovingTime = 0;
+// Create Vehicle and UltrasonicSensor objects with defined pin configurations
+Vehicle vehicle(L298N_ENA_PIN, L298N_IN1_PIN, L298N_IN2_PIN, L298N_ENB_PIN,
+                L298N_IN3_PIN, L298N_IN4_PIN);
+UltrasonicSensor ultrasonic(ULTRASONIC_TRIG_PIN, ULTRASONIC_ECHO_PIN,
+                            ULTRASONIC_MAX_DISTANCE);
 
 void setup() {
+#ifdef DEBUG
   Serial.begin(115200);
-  Serial.println("Rover Model A - Starting...");
-
-  pinMode(LED_BUILTIN, OUTPUT);
-  randomSeed(analogRead(A0));
+  DEBUG_PRINTLN("Debugging enabled");
+#endif
+  vehicle.stop(); // Ensure the vehicle is stopped at startup
 }
-
 void loop() {
-  delay(100);
-  digitalWrite(ROVER_SONAR_TRIG_PIN, LOW);
-  delayMicroseconds(10);
+  unsigned int distance = ultrasonic.getDistance();
+  DEBUG_PRINT("Distance: ");
+  DEBUG_PRINT(distance);
+  DEBUG_PRINTLN(" cm");
 
-  digitalWrite(ROVER_SONAR_TRIG_PIN, HIGH);
-  delayMicroseconds(2);
-
-  digitalWrite(ROVER_SONAR_TRIG_PIN, LOW);
-
-  duration = pulseIn(ROVER_SONAR_ECHO_PIN, HIGH);
-  distance = duration * 0.0344 / 2;
-
-  Serial.print("Distance: ");
-  Serial.print(distance);
-  Serial.println(" cm");
-
-  if (distance < ROVER_TURNING_DISTANCE) {
-    motors.stop();
-    Serial.println("Stopped due to obstacle.");
+  if (distance < 50) {
+    vehicle.stop();
+    delay(1000);
+    vehicle.moveBackward(150);
+    delay(1000);
+    vehicle.stop();
     delay(500);
-    motors.turnRight(ROVER_TURNING_SPEED);
-    isMoving = true;
-    lastStartMovingTime = millis();
-    Serial.println("Turning right due to obstacle.");
+    vehicle.turnRight(150);
     delay(500);
+    vehicle.stop();
+    delay(1000);
   } else {
-    if (!isMoving || (millis() - lastStartMovingTime > 500)) {
-      motors.forward(ROVER_MOVING_SPEED);
-      isMoving = true;
-      lastStartMovingTime = millis();
-      Serial.println("Moving forward.");
-    }
+    vehicle.moveForward(200);
   }
+
+  delay(100);
 }
